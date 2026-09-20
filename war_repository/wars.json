@@ -3,7 +3,7 @@
   "wars": [
     {
       "id": "hello",
-      "name": "Hello World Servlet",
+      "name": "Hello World servlet",
       "fileName": "hello.war",
       "description": "A plain-text servlet that returns “Hello World!”.",
       "sizeBytes": 3933,
@@ -11,23 +11,23 @@
     },
     {
       "id": "vaadin",
-      "name": "Vaadin Button Demo",
+      "name": "Vaadin button demo",
       "fileName": "vaadin-demo.war",
       "description": "Open the address in a browser, press the button, and see “Button pressed”.",
-      "sizeBytes": 17887307,
-      "sha256": "42a2aa6d73c2e642798b0537aed3d5bab2e809a4dcf2449cd62bce9b3ee80511"
+      "sizeBytes": 22924285,
+      "sha256": "17292f036e44bb4e3fcf01f6411a7403ebe393b55ac6ab3262ea92993f44d6d9"
     },
     {
       "id": "vaadin-official",
-      "name": "Official Vaadin Demo",
+      "name": "Official Vaadin demo",
       "fileName": "vaadin-official-demo.war",
       "description": "Explore Dashboard, Components, Products, Users, and Settings in your browser.",
-      "sizeBytes": 21984283,
-      "sha256": "289f2e119171510c809693c901a97d23d28b0d10479552868f803c8189dc8649"
+      "sizeBytes": 27327501,
+      "sha256": "788cf98bf81c77528c5aea88c0345daace81be097f847efda6f3df7e11a3487b"
     },
     {
       "id": "vaadin-bookstore",
-      "name": "Vaadin Bookstore Demo",
+      "name": "Vaadin Bookstore demo",
       "fileName": "vaadin-bookstore-demo.war",
       "description": "Manage books and categories. Log in with admin / admin to edit, or user / user to browse.",
       "sizeBytes": 15645332,
