@@ -1,0 +1,26 @@
+[
+  {
+    "id": "hello",
+    "name": "Hello World servlet",
+    "fileName": "hello.war",
+    "description": "A plain-text servlet that returns “Hello World!”."
+  },
+  {
+    "id": "vaadin",
+    "name": "Vaadin button demo",
+    "fileName": "vaadin-demo.war",
+    "description": "Open the address in a browser, press the button, and see “Button pressed”."
+  },
+  {
+    "id": "vaadin-official",
+    "name": "Official Vaadin demo",
+    "fileName": "vaadin-official-demo.war",
+    "description": "Explore Dashboard, Components, Products, Users, and Settings in your browser."
+  },
+  {
+    "id": "vaadin-bookstore",
+    "name": "Vaadin Bookstore demo",
+    "fileName": "vaadin-bookstore-demo.war",
+    "description": "Manage books and categories. Log in with admin / admin to edit, or user / user to browse."
+  }
+]
