@@ -14,8 +14,8 @@
       "name": "Vaadin button demo",
       "fileName": "vaadin-demo.war",
       "description": "Open the address in a browser, press the button, and see “Button pressed”.",
-      "sizeBytes": 22924285,
-      "sha256": "17292f036e44bb4e3fcf01f6411a7403ebe393b55ac6ab3262ea92993f44d6d9"
+      "sizeBytes": 22925104,
+      "sha256": "10fa3336f9f1dbc1d412dfa1c30ef8da0d1fed25a88e17f43d6c6f09d90f4615"
     },
     {
       "id": "vaadin-official",
