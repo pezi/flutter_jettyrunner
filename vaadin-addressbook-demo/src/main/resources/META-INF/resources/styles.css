@@ -1,0 +1,79 @@
+/* Address book demo. Aura provides the component look; this file arranges the page. */
+:root {
+  --ab-accent: #0f766e;
+  --ab-accent-soft: #ccfbf1;
+  --ab-muted: #64748b;
+  --ab-border: #e2e8f0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ab-accent: #5eead4;
+    --ab-accent-soft: #134e4a;
+    --ab-muted: #94a3b8;
+    --ab-border: #334155;
+  }
+}
+
+.address-book .page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-sizing: border-box;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 1rem;
+}
+
+.address-book .header { gap: 1rem; }
+.address-book .logo {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.65rem;
+  box-sizing: border-box;
+  border-radius: 1rem;
+  color: var(--ab-accent);
+  background: var(--ab-accent-soft);
+}
+.address-book .heading { flex: 1; min-width: 0; }
+.address-book .heading h1 { margin: 0; font-size: 1.6rem; line-height: 1.2; }
+.address-book .subtitle { margin: 0.15rem 0 0; color: var(--ab-muted); font-size: 0.9rem; }
+.address-book .count {
+  flex: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: var(--ab-accent-soft);
+  color: var(--ab-accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.address-book .toolbar { gap: 0.75rem; flex-wrap: wrap; }
+.address-book .search { min-width: 12rem; }
+
+.address-book .contacts {
+  flex: 1;
+  min-height: 18rem;
+  border: 1px solid var(--ab-border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.address-book .name-cell { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; }
+.address-book .name-text { display: flex; flex-direction: column; min-width: 0; }
+.address-book .name { font-weight: 600; }
+.address-book .email, .address-book .city { color: var(--ab-muted); font-size: 0.85rem; overflow-wrap: anywhere; }
+.address-book .address-cell { display: flex; flex-direction: column; }
+
+.address-book .empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--ab-muted);
+  border: 1px dashed var(--ab-border);
+  border-radius: 1rem;
+}
+
+@media (max-width: 560px) {
+  .address-book .subtitle { display: none; }
+  .address-book .count { display: none; }
+}
