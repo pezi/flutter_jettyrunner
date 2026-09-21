@@ -1,6 +1,6 @@
 # Converting JVM WAR applications for Android
 
-**Hint:** This references also non public parts. 
+**Hint:** This document references also non public parts. 
 
 This is the WAR conversion guide for the Aoo WAR Runner, intended for humans
 and coding agents. The Flutter/Android host lives in the sibling `../war_runner/`
