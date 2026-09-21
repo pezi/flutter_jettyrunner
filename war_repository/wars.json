@@ -3,7 +3,7 @@
   "wars": [
     {
       "id": "hello",
-      "name": "Hello World servlet",
+      "name": "Hello World Servlet",
       "fileName": "hello.war",
       "description": "A plain-text servlet that returns “Hello World!”.",
       "sizeBytes": 3933,
@@ -11,7 +11,7 @@
     },
     {
       "id": "vaadin",
-      "name": "Vaadin button demo",
+      "name": "Vaadin button Demo",
       "fileName": "vaadin-demo.war",
       "description": "Open the address in a browser, press the button, and see “Button pressed”.",
       "sizeBytes": 22925104,
@@ -19,7 +19,7 @@
     },
     {
       "id": "vaadin-official",
-      "name": "Official Vaadin demo",
+      "name": "Official Vaadin Demo",
       "fileName": "vaadin-official-demo.war",
       "description": "Explore Dashboard, Components, Products, Users, and Settings in your browser.",
       "sizeBytes": 27327501,
@@ -27,7 +27,7 @@
     },
     {
       "id": "vaadin-bookstore",
-      "name": "Vaadin Bookstore demo",
+      "name": "Vaadin Bookstore Demo",
       "fileName": "vaadin-bookstore-demo.war",
       "description": "Manage books and categories. Log in with admin / admin to edit, or user / user to browse.",
       "sizeBytes": 15645332,
@@ -35,7 +35,7 @@
     },
     {
       "id": "vaadin-addressbook",
-      "name": "Vaadin Address Book demo",
+      "name": "Vaadin Address Book Demo",
       "fileName": "vaadin-addressbook-demo.war",
       "description": "Search, add, edit and delete contacts kept in an in-memory H2 database on the phone. Starts with five people.",
       "sizeBytes": 27359822,
