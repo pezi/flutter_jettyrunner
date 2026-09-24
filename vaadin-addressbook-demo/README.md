@@ -26,6 +26,8 @@ Android. The form uses explicit `Binder` bindings instead of
 
 ## Build
 
+From the public repository root, using the [shared build requirements](../README.md#build):
+
 ```sh
 bash scripts/build_addressbook_war.sh
 python3 scripts/generate_war_catalog.py

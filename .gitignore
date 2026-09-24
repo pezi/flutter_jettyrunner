@@ -1,5 +1,24 @@
+# Local tools and generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
+.idea/
+*.iml
+*.class
+*.log
+*.pyc
+__pycache__/
+/build/
+
+/github/
+
+# Rebuildable Maven and frontend outputs
+/servlet/target/
+/vaadin-demo/target/
+/vaadin-official-demo/target/
+/vaadin-bookstore-demo/target/
+/vaadin-addressbook-demo/target/
+/vaadin-bookstore-demo/node_modules/
+/vaadin-bookstore-demo/src/main/frontend/generated/
+/vaadin-bookstore-demo/tsconfig.json
+/vaadin-bookstore-demo/types.d.ts
+/vaadin-bookstore-demo/src/main/bundles/
+

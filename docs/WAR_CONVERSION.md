@@ -1,10 +1,13 @@
 # Converting JVM WAR applications for Android
 
-**Hint:** This document references also non public parts. 
+This is the WAR conversion guide for **WAR Runner**, intended for humans and
+coding agents. This public repository contains the demo sources, packaging
+tools and catalog. **The Flutter/Android host and its tests are maintained in a
+separate, private project.** Host class names below describe the runtime contract;
+they are not files available in this checkout. You can build WARs here without
+the private source and test them using the installed app's web admin.
 
-This is the WAR conversion guide for the Aoo WAR Runner, intended for humans
-and coding agents. The Flutter/Android host lives in the sibling `../war_runner/`
-directory. Futter/Android checks run from `../war_runner/`. Findings were checked during the Jetty 12.1 / Vaadin 25 conversion
+Findings were checked during the Jetty 12.1 / Vaadin 25 conversion
 on **2026-09-17**. They describe the versions below, not a promise that arbitrary
 WARs, Java libraries, or future releases will work on Android.
 
@@ -17,17 +20,26 @@ from the landing page are three useful checks, but none proves the app works.
 
 | Responsibility | Source of truth |
 | --- | --- |
-| Host dependencies, Android API floor, release settings | [Android build](../../jettyrunner/android/app/build.gradle.kts) |
-| Foreground lifecycle and Flutter bridge | [JettyService](../../jettyrunner/android/app/src/main/kotlin/app/flutterdev/jettyrunner/JettyService.kt), [MainActivity](../../jettyrunner/android/app/src/main/kotlin/app/flutterdev/jettyrunner/MainActivity.kt) |
-| Deployment, extraction, DEX loading, start/stop | [JettyHost](../../jettyrunner/android/app/src/main/kotlin/app/flutterdev/jettyrunner/JettyHost.kt), [AndroidJettyRunner](../../jettyrunner/android/app/src/main/java/app/flutterdev/jettyrunner/AndroidJettyRunner.java) |
-| Resource URLs exposed by the DEX loader | [WarClassLoader](../../jettyrunner/android/app/src/main/kotlin/app/flutterdev/jettyrunner/WarClassLoader.kt) |
-| Supported `web.xml` subset | [AndroidWebXml](../../jettyrunner/android/app/src/main/java/app/flutterdev/jettyrunner/AndroidWebXml.java) |
 | WAR-to-DEX packaging | [package_android_war.py](../scripts/package_android_war.py) |
 | Minimal Vaadin example | [Button demo POM](../vaadin-demo/pom.xml), [DemoServlet](../vaadin-demo/src/main/java/app/flutterdev/vaadindemo/DemoServlet.java) |
 | Complex upstream application | [Official demo POM](../vaadin-official-demo/pom.xml), [OfficialDemoServlet](../vaadin-official-demo/src/main/java/com/vaadin/demo/OfficialDemoServlet.java), [port notes](../vaadin-official-demo/README.md) |
 | Bookstore with authentication and forms | [Bookstore POM](../vaadin-bookstore-demo/pom.xml), [port notes](../vaadin-bookstore-demo/README.md) |
 | Database access without Spring (H2 over JDBC) | [Address book POM](../vaadin-addressbook-demo/pom.xml), [PersonRepository](../vaadin-addressbook-demo/src/main/java/app/flutterdev/addressbook/PersonRepository.java), [notes](../vaadin-addressbook-demo/README.md) |
 
+For maintainers with the private app checkout, the corresponding host sources
+are listed below. Paths are relative to that app's root, locally `warrunner/`,
+not this public repository:
+
+| Responsibility | Private app source |
+| --- | --- |
+| Host dependencies, Android API floor, release settings | `android/app/build.gradle.kts` |
+| Foreground lifecycle and Flutter bridge | `JettyService.kt`, `MainActivity.kt` |
+| Deployment, extraction, DEX loading, start/stop | `JettyHost.kt`, `AndroidJettyRunner.java` |
+| Resource URLs exposed by the DEX loader | `WarClassLoader.kt` |
+| Supported `web.xml` subset | `AndroidWebXml.java` |
+
+Kotlin classes are under `android/app/src/main/kotlin/app/flutterdev/jettyrunner/`;
+Java classes are under `android/app/src/main/java/app/flutterdev/jettyrunner/`.
 
 ## Tested compatibility matrix
 
@@ -39,7 +51,7 @@ from the landing page are three useful checks, but none proves the app works.
 | Hello World WAR | Java release **11**, provided Servlet API **5.0.0** | This particular older servlet works in the EE11 host. This is not a guarantee for every Servlet 5 application. |
 | Android minimum | **API 35 / Android 15** | Flow uses Java 21 APIs such as `List.getFirst()`. D8 does not make the complete JDK available on Android. |
 | WAR conversion tools | Build-Tools **36.0.0**, Platform **36**, Python **3.9+**, Maven | The Vaadin packager passes `--min-api 35` and the Android platform JAR to D8. Hello's simpler script still emits API 34-compatible DEX; the APK minimum is 35. |
-| Browser resources | Button/official: matching **25.2.8** `vaadin-prod-bundle` and Aura. Bookstore: **25.2.8** production frontend, Lumo and original CSS imports. | The bookstore requires Node/npm at WAR build time. A server/frontend version mismatch or missing theme files can survive a successful Java build. |
+| Browser resources | Button/official/address book: matching **25.2.8** `vaadin-prod-bundle` and Aura. Bookstore: **25.2.8** production frontend, Lumo and original CSS imports. | The bookstore requires Node/npm at WAR build time. A server/frontend version mismatch or missing theme files can survive a successful Java build. |
 
 The original official demo is pinned to
 [`d362e98aa9c38b588fdcf9f0a74bccbda4da714a`](https://github.com/vaadin/vaadin-demo/tree/d362e98aa9c38b588fdcf9f0a74bccbda4da714a).
@@ -202,8 +214,9 @@ or resource classpath. Use the full runtime-JAR path for a complex application.
 
 ### 6. Preserve resource paths and Android loading requirements
 
-`JettyHost` copies the selected asset into app-private code-cache storage,
-extracts it and loads its DEX before starting Jetty. When writing `runtime.jar`,
+`JettyHost` verifies the selected downloaded or uploaded WAR in app-private
+storage, extracts its deployment files into code-cache storage and loads its
+DEX before starting Jetty. When writing `runtime.jar`,
 it opens the destination, marks it read-only **before writing**, then writes
 through the already-open descriptor. Android's dynamic-code-loading rules
 require this ordering. On redeployment it deletes the old read-only file and
@@ -229,7 +242,8 @@ resources is necessary for Aura CSS and its fonts. Application CSS/Prism/icons
 are also copied into the official WAR web root by Maven, replacing Spring's
 resource serving. Preserve all relative CSS imports and font/icon URLs.
 
-The matching `vaadin-prod-bundle` is copied to
+For the button, official and address book demos, the matching
+`vaadin-prod-bundle` is copied to
 `WEB-INF/classes/META-INF/VAADIN` for Vaadin's resource handling. Keep production
 mode enabled. These demos use standard bundled components and plain CSS; custom
 frontend modules/add-ons may require a real Vaadin frontend build instead.
@@ -242,13 +256,17 @@ dropped: Badge is a standard component since Vaadin 25.2, and 25.2 logs an
 
 Build the Android WAR into `war_repository/` and add its ID, demo name,
 filename and description to `war_repository/demos.json`. Generate the size and
-SHA-256 fields with `python3 scripts/generate_war_catalog.py`, then publish with
-`bash scripts/publish_wars.sh`. The app loads `wars.json` at startup and downloads
+SHA-256 fields with `python3 scripts/generate_war_catalog.py`, then commit and
+publish the WARs and catalog to the public repository as described in
+[Publish](../README.md#publish). For a local trial, use the
+[web admin upload workflow](../README.md#run-a-war-in-the-app) instead.
+The app loads `wars.json` at startup and downloads
 selected WARs into private, non-backed-up storage. `WarSpec` validates metadata
 and file integrity before Jetty loads it. No Flutter selector or native enum
 changes are needed. Extend device tests for the new application's routes/assets.
 
-The host supports **one WAR at a time**, always at `/` on port `8080`.
+The host supports **one WAR at a time**, always at `/`. HTTP defaults to port
+`8080`; optional HTTPS defaults to `8443`. Ports are configurable in Settings.
 Jetty binds to `0.0.0.0` so browsers on the Wi-Fi / LAN can use the device's
 advertised IPv4 address. Loopback `127.0.0.1:8080` remains available for the
 startup health check and local clients.
@@ -277,7 +295,7 @@ modes enforced or implied by the current build contract.
 | --- | --- | --- |
 | New Jetty, but Vaadin 25 still cannot use its required servlet API | Jetty 12 has multiple EE environments. Select EE11 / Servlet 6.1, then restore upstream APIs. | Android dependencies, imports and WAR POM/descriptors |
 | `NoSuchMethodError: Thread.ofVirtual` during `FrontendUtils.<clinit>` | Flow 25.1.5 creates a virtual-thread executor during static initialization, even in production. Substitute a cached platform-thread executor before D8. A later service override cannot fix this earlier failure. | `scripts/AndroidVaadinBytecode.java` |
-| Vaadin service's default executor also uses virtual threads | Override `createDefaultExecutor()` with the process-owned `ForkJoinPool.commonPool()`. Do not close the shared pool on WAR stop. This is separate from the static initializer fix. | All three custom Vaadin servlets |
+| Vaadin service's default executor also uses virtual threads | Override `createDefaultExecutor()` with the process-owned `ForkJoinPool.commonPool()`. Do not close the shared pool on WAR stop. This is separate from the static initializer fix. | All four custom Vaadin servlets |
 | `NoClassDefFoundError: java.beans.Introspector` when constructing a view | `new Grid<>(Bean.class, false)` still performs JavaBeans introspection. Use `new Grid<>()` with the existing explicit columns. Preserve renderers, filters and data. | One constructor in each of four official views |
 | `BeanValidationBinder` needs JavaBeans property discovery | Bookstore uses explicit `Binder` method references and equivalent model constraints for its product/category forms. Model annotations remain; Hibernate Validator is omitted. | `ProductForm`, `AdminView` in demo 4 |
 | Archive/resource access needs an unavailable ZIP filesystem | Extract with `ZipFile`; use directory resources and `file:` classpath URLs. Avoid replacing the DEX loader with a JVM `WebAppClassLoader`. | Host and `WarClassLoader` |
@@ -316,20 +334,41 @@ HTTP/navigation tests, even though Vaadin/Atmosphere dependencies are present.
 
 ## Verification and completion
 
-From `jettyrunner_github/`, rebuild the affected WAR and publish its updated
-catalog **before** running Flutter integration tests. Substitute an available
-Android device ID:
+### Public WAR build and device checks
+
+From this repository's root, rebuild the affected WARs and regenerate the
+catalog. The commands below cover all five demos; run the builds you changed:
 
 ```sh
 java -version
 mvn -version
+bash scripts/build_war.sh
 bash scripts/build_vaadin_war.sh
 bash scripts/build_official_vaadin_war.sh
 bash scripts/build_bookstore_war.sh
-bash scripts/publish_wars.sh
+bash scripts/build_addressbook_war.sh
+python3 scripts/generate_war_catalog.py
+```
 
-# Flutter/Android checks run in the app project.
-cd ../jettyrunner
+Use the SDK setup in the [build instructions](../README.md#build). Maven and the
+`java` command used by the source-file transformer must both have a suitable
+JDK available. First builds need dependency downloads.
+
+Inspect the WAR's DEX, resources and descriptor, then upload a uniquely named
+copy through the [installed app's web admin](../README.md#run-a-war-in-the-app).
+Exercise the routes, assets and browser interactions listed below. Building a
+WAR does not require Flutter or access to the private host tests.
+
+### Private app checks (maintainers only)
+
+These commands require the separate private `warrunner/` checkout. They cannot
+run from the public repository. Publish the updated WARs and catalog
+**before** running the app's catalog-based integration tests; those tests
+download published files, not local Maven outputs. Substitute the private
+checkout path and an available Android device ID:
+
+```sh
+cd /path/to/private/warrunner
 flutter analyze
 flutter test
 (cd android && ./gradlew :app:testDebugUnitTest)
@@ -338,12 +377,10 @@ flutter test integration_test/runner_test.dart -d <android-device-id>
 flutter build apk --release -t lib/main.dart
 ```
 
-The scripts resolve the SDK from `ANDROID_SDK_ROOT`, `ANDROID_HOME`, or
-`../jettyrunner/android/local.properties`. `ANDROID_BUILD_TOOLS` and `ANDROID_COMPILE_API`
-override the Vaadin scripts' tool/platform versions. Maven and the `java` command
-used by the source-file transformer must both have a suitable JDK available.
-First WAR builds need dependency downloads; normal Flutter builds omit WARs
-and need no Maven/Node frontend build. The app downloads WARs at runtime.
+Normal Flutter builds omit WARs and need no Maven/Node frontend build. The app
+downloads WARs at runtime.
+
+### Runtime verification checklist
 
 Check in increasing depth:
 
@@ -357,7 +394,8 @@ Check in increasing depth:
    an existing Vaadin session still available. Stop from the notification with
    the activity closed and verify both port release and notification removal.
    Confirm private paths return 404. The native instrumentation suite covers
-   service lifecycle; the Flutter integration suite covers all WARs.
+   service lifecycle for all five demos; the Flutter integration suite covers
+   Hello World, the button demo, the official demo and the bookstore.
 3. **HTTP assets:** Check frontend script bodies, CSS `Content-Type: text/css`,
    and real content rather than HTML fallback. Check referenced fonts, icons and
    stylesheet imports when themes change. A 200 status alone is insufficient.
@@ -375,10 +413,11 @@ Check in increasing depth:
    nothing about Android DEX linkage. Release shrinking is currently disabled
    because of reflection/dynamic loading. Release signing uses the local
    `android/key.properties` file, with a debug-key fallback when that file is
-   absent; see [Android release signing](../../jettyrunner/README.md#android-release-signing).
+   absent. Maintainers should follow the Android release signing section of
+   the private app's README.
 
-The checked-in test documents the Flow protocol used by the pinned version;
-review it on Vaadin upgrades instead of weakening assertions to accept an empty
+The private app's integration test documents the Flow protocol used by the pinned
+version; review it on Vaadin upgrades instead of weakening assertions to accept an empty
 response. App-shell styles belong in the initial HTML; the original app does
 not need duplicate CSS annotations on `MainLayout` just to satisfy a test that
 only inspects navigation responses.
@@ -420,9 +459,10 @@ APK. Do not accidentally deliver the auto-start test build.
 
 This is a validation record for the converted revision, not a substitute for
 rerunning affected checks after changes. APKs, Maven `target` directories and
-comparison checkouts are generated outputs; commit sources, build scripts,
-documentation and catalog metadata. Publish generated WAR binaries separately. An edit to the official
-demo's own README also changes packaged resources because that POM embeds it.
+comparison checkouts are generated outputs. The current public repository tracks
+sources, build scripts, documentation, catalog metadata and the distribution
+WAR binaries in `war_repository/`. Publish updated binaries and their checksum
+catalog together. An edit to the official demo's own README also changes packaged resources because that POM embeds it.
 
 ### Demo 4 validation, 2026-09-17
 
@@ -503,10 +543,10 @@ inspect the source of the dependency actually resolved by the POM/Gradle build.
 
 The earlier verification records above describe builds that bundled WAR assets.
 The current APK contains no WARs. Its catalog is fetched from
-`https://raw.githubusercontent.com/pezi/war_runner/refs/heads/main/war_repository/demos.json`; binaries live beside it.
+`https://raw.githubusercontent.com/pezi/war_runner/refs/heads/main/war_repository/wars.json`; binaries live beside it.
 App startup fetches/caches metadata, selection downloads missing files with progress
 and cancellation, and the service starts verified private-storage files. The
 runner accepts catalog-defined demos without a hard-coded enum. See the
-[WAR workspace README](../README.md#publish) for publishing and the
-[app README](../../jettyrunner/README.md#downloadable-demo-catalog) for offline behavior. Device tests need internet access for their
-first download; cached WARs remain reusable afterward.
+[WAR repository README](../README.md#publish) for publishing and offline behavior.
+Device tests need internet access for their first download; the app can reuse
+its last valid catalog and matching downloaded WARs afterward.

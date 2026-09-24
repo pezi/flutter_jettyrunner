@@ -7,7 +7,7 @@ The original README is in `UPSTREAM-README.md`; the upstream Unlicense is in
 `LICENSE.md`. The Java views, sample data, icons, source viewer, Prism assets,
 and view styles are imported from that revision.
 
-The third Flutter demo deploys `war_repository/vaadin-official-demo.war` at `/` and includes:
+WAR Runner deploys `war_repository/vaadin-official-demo.war` at `/`. It includes:
 
 - Dashboard (`/`, `/dashboard`): KPI cards and recent orders.
 - Components (`/components`): 19 interactive component examples.
@@ -22,7 +22,7 @@ authentication, invitations, payments, or external integrations.
 
 ## Compatibility changes after the Jetty 12 review
 
-Both Vaadin WARs now use **Vaadin 25.2.8**, compiled with **Java 21**. The
+All four Vaadin WARs use **Vaadin 25.2.8**, compiled with **Java 21**. The
 pinned upstream demo uses 25.1.5; 25.2 fixes a Jetty 12 warning where Flow first
 looked up app shell stylesheets such as `styles.css` without a leading slash. The host uses **Jetty 12.1.13 EE11 /
 Servlet 6.1**. Merely changing Jetty's version while retaining its EE9 / Servlet 5
@@ -43,7 +43,7 @@ Remaining changes are confined to Android deployment:
   `SourceService` dependency explicitly. DEX loading does not provide the JVM
   classpath scanning used by Spring and servlet initializers. View constructors
   and route annotations remain upstream code.
-- Both Vaadin servlets use a platform-thread executor. An emulator test with
+- The custom Vaadin servlets use a platform-thread executor. An emulator test with
   Vaadin's default executor fails with `NoSuchMethodError: Thread.ofVirtual`;
   Android does not implement Java virtual threads.
 - `AndroidVaadinBytecode.java` changes the virtual-thread pool initialized by
@@ -75,7 +75,7 @@ after a restart; server sessions do not survive redeployment.
 
 ## Build
 
-From the `jettyrunner_github/` root:
+From the public repository root:
 
 ```sh
 bash scripts/build_official_vaadin_war.sh
@@ -85,8 +85,8 @@ This produces a conventional JVM WAR at
 `vaadin-official-demo/target/vaadin-official-demo.war`, then adds multidex and
 classpath resources to `war_repository/vaadin-official-demo.war`. Requirements and Android
 SDK overrides are documented in the [WAR workspace README](../README.md#build).
-No Node.js/frontend build is needed for this port. The Flutter app in
-`../jettyrunner/` downloads published WARs at runtime; its APK contains no WARs.
+No Node.js/frontend build is needed for this port. The separate, private
+WAR Runner app downloads published WARs at runtime; its APK contains no WARs.
 
 To inspect or run the unmodified upstream application separately:
 

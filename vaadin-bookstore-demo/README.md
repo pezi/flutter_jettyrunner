@@ -4,7 +4,7 @@ Android port of [vaadin/bookstore-example](https://github.com/vaadin/bookstore-e
 branch `v25`, pinned to commit
 [`a86110dab30778dac47ed5eeed7c606ee67937c3`](https://github.com/vaadin/bookstore-example/tree/a86110dab30778dac47ed5eeed7c606ee67937c3).
 The upstream application uses **Vaadin 25.2.8** and Java 21; this port keeps that
-version independently of the other two Vaadin demos (25.1.5).
+version. All four Vaadin demos in this repository now use 25.2.8.
 
 Select **Vaadin Bookstore demo**, start the servlet, and open the displayed URL.
 Log in with **admin / admin** to edit books and categories. Any other matching
@@ -47,7 +47,7 @@ Dependency notices are retained by the Android packager.
 
 ## Rebuild
 
-From the `jettyrunner_github/` root:
+From the public repository root:
 
 ```sh
 bash scripts/build_bookstore_war.sh
@@ -57,5 +57,5 @@ Requires the tools in [the conversion guide](../docs/WAR_CONVERSION.md), plus
 Node.js/npm for Vaadin's production frontend build. The initial build may
 install frontend dependencies. Outputs are the conventional JVM WAR in
 `vaadin-bookstore-demo/target/vaadin-bookstore-demo.war` and the downloadable Android WAR
-`war_repository/vaadin-bookstore-demo.war`. Normal Flutter builds omit WARs and
-need no Maven or Node.js.
+`war_repository/vaadin-bookstore-demo.war`. The separate WAR Runner app downloads
+published WARs at runtime; its private Flutter source is not required for this build.

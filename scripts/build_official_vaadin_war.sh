@@ -3,8 +3,8 @@ set -euo pipefail
 
 project_dir="$(cd "$(dirname "$0")/.." && pwd)"
 sdk_dir="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
-if [[ -z "$sdk_dir" && -f "$project_dir/../jettyrunner/android/local.properties" ]]; then
-  sdk_dir="$(sed -n 's/^sdk.dir=//p' "$project_dir/../jettyrunner/android/local.properties")"
+if [[ -z "$sdk_dir" && -f "$project_dir/../warrunner/android/local.properties" ]]; then
+  sdk_dir="$(sed -n 's/^sdk.dir=//p' "$project_dir/../warrunner/android/local.properties")"
 fi
 if [[ -z "$sdk_dir" ]]; then
   echo 'Set ANDROID_SDK_ROOT or ANDROID_HOME to your Android SDK directory.' >&2

@@ -11,7 +11,7 @@
     },
     {
       "id": "vaadin",
-      "name": "Vaadin Button Demo",
+      "name": "Vaadin button Demo",
       "fileName": "vaadin-demo.war",
       "description": "Open the address in a browser, press the button, and see “Button pressed”.",
       "sizeBytes": 22925104,
