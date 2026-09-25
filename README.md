@@ -1,5 +1,7 @@
 # WAR Runner demo applications and build tools
 
+![WAR Runner](images/intro.jpg "WAR Runner")
+
 This public repository, [pezi/war_runner](https://github.com/pezi/war_runner),
 contains the demo application sources, Android WAR packaging tools, conversion
 guide, and downloadable WAR catalog for **WAR Runner**.
