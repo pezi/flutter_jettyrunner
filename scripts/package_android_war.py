@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add a DEX + resource classpath to a conventional WAR without changing its JVM deployment."""
+"""Convert a JVM WAR to DEX and resources; optionally retain the JVM contents."""
 
 import argparse
 import io
@@ -85,6 +85,12 @@ def package(args):
         resources.update({file.name: file.read_bytes() for file in dex_files})
         runtime = work / "runtime.jar"
         write_zip(runtime, resources)
+        if not args.include_jvm:
+            # Classes and classpath resources now live in the Android runtime.
+            # Keep web.xml and web-root assets at their original servlet paths.
+            entries = {name: content for name, content in entries.items()
+                       if not name.startswith(("WEB-INF/classes/", "WEB-INF/lib/"))
+                       and not name.endswith(".class")}
         entries["WEB-INF/android/runtime.jar"] = runtime.read_bytes()
         output = work / "android.war"
         write_zip(output, entries)
@@ -102,4 +108,6 @@ if __name__ == "__main__":
     parser.add_argument("--classpath", type=pathlib.Path, required=True)
     parser.add_argument("--asm-jar", type=pathlib.Path,
                         help="ASM build tool for the Vaadin 25 Android-only virtual-thread adjustment")
+    parser.add_argument("--include-jvm", action="store_true",
+                        help="retain original JVM classes and dependency JARs (default: DEX only)")
     package(parser.parse_args())

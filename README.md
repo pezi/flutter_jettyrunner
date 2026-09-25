@@ -4,7 +4,7 @@ This public repository, [pezi/war_runner](https://github.com/pezi/war_runner),
 contains the demo application sources, Android WAR packaging tools, conversion
 guide, and downloadable WAR catalog for **WAR Runner**.
 
-**The WAR Runner Flutter/Android app is a separate, private project. Its source
+**The WAR Runner Flutter/Android app is a separate, non public project. Its source
 and app tests are not included here.** You can build the demo WARs from this
 repository without the app source or Flutter. Running them on Android requires
 the WAR Runner app on Android **15+ (API 35+)**. The app embeds Jetty
@@ -80,9 +80,44 @@ bash /path/to/war_runner/scripts/build_war.sh
 | Vaadin Bookstore | `vaadin-bookstore-demo/target/vaadin-bookstore-demo.war` | `war_repository/vaadin-bookstore-demo.war` |
 | Vaadin Address Book | `vaadin-addressbook-demo/target/vaadin-addressbook-demo.war` | `war_repository/vaadin-addressbook-demo.war` |
 
-The Android WAR adds executable DEX bytecode while retaining the conventional
-JVM WAR contents. `package_android_war.py` and its adjacent
-`AndroidVaadinBytecode.java` package the Vaadin runtime and compatibility fixes.
+The Android distribution WAR is **DEX-only by default**: it contains executable
+Android bytecode, required resources and `WEB-INF/web.xml`, without the original
+JVM `.class` files or dependency JARs. WAR Runner does not execute JVM bytecode.
+The Maven WAR in `target/` always retains the conventional JVM contents.
+
+DEX is stored differently in the two packaging layouts:
+
+```text
+hello.war
+└── classes.dex
+
+vaadin-*.war
+└── WEB-INF/android/runtime.jar
+    ├── classes.dex              # classes2.dex, etc. when needed
+    └── ...                      # merged classpath resources and notices
+```
+
+For example, open `WEB-INF/android/runtime.jar` inside
+`vaadin-official-demo.war` as a ZIP archive to find its DEX. Unpacking just the
+outer WAR does not reveal a loose `.dex` file. Vaadin application resources,
+dependency resources, service-provider files, frontend assets and license
+notices are merged into this runtime JAR; the redundant `WEB-INF/classes/` and
+`WEB-INF/lib/` trees are omitted from the default Android WAR.
+
+Pass **`--include-jvm`** to any of the five build scripts to retain the original
+JVM contents alongside DEX in the Android distribution WAR:
+
+```sh
+bash scripts/build_war.sh --include-jvm
+bash scripts/build_official_vaadin_war.sh --include-jvm
+```
+
+This writes to the same `war_repository/` output path. Run the script without
+the option to restore the smaller DEX-only build, then regenerate the catalog.
+The Python Vaadin packager also accepts `--include-jvm` when called directly.
+
+`package_android_war.py` and its adjacent `AndroidVaadinBytecode.java` package
+the Vaadin runtime and compatibility fixes.
 Read the [conversion guide](docs/WAR_CONVERSION.md) before adding another WAR or
 upgrading dependencies. Arbitrary desktop WARs need Android conversion first.
 
@@ -103,6 +138,22 @@ are reserved. Start the uploaded application from the web admin or the app.
 Bookstore sample logins are **admin / admin** for editing and **user / user**
 for browsing. Bookstore changes and address book contacts are kept in memory
 and reset when their WAR is restarted.
+
+## Deploy from the command line
+
+Use the public Python CLI to upload a locally built Android WAR, start it,
+check readiness, and retrieve logs from the installed app:
+
+```sh
+python3 scripts/war_runner.py --url https://192.168.1.42:9443 --insecure \
+  deploy war_repository/hello.war
+```
+
+Enable web admin in the app first; the CLI prompts for its password. This
+example accepts the app's self-signed certificate for a trusted development
+connection. Python 3.9+ is sufficient, with no third-party packages or private
+app source. See the [deployment CLI guide](docs/DEPLOYMENT_CLI.md) for certificate
+pinning, ADB forwarding, repeated deployments, `status`, and `logs --follow`.
 
 ## Publish
 
@@ -168,3 +219,13 @@ describes packaging checks, device/browser checks and historical results.
 Flutter, Gradle and app integration test commands in that guide are explicitly
 for maintainers with the private app source. Public contributors can build
 WARs here and check their behavior using the installed app's web admin.
+
+The packaging tools and deployment CLI have standalone tests:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+They cover both packaging modes, resource preservation, failed-conversion
+handling and the deployment protocol. They need Python and OpenSSL, but no
+Flutter, Android SDK, or app source.

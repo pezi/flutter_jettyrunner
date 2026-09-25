@@ -82,8 +82,13 @@ bash scripts/build_official_vaadin_war.sh
 ```
 
 This produces a conventional JVM WAR at
-`vaadin-official-demo/target/vaadin-official-demo.war`, then adds multidex and
-classpath resources to `war_repository/vaadin-official-demo.war`. Requirements and Android
+`vaadin-official-demo/target/vaadin-official-demo.war`, then packages DEX and
+classpath resources in `WEB-INF/android/runtime.jar` inside
+`war_repository/vaadin-official-demo.war`. Open that nested JAR as a ZIP to find
+`classes.dex` (and additional DEX files when needed). The distribution omits
+the original JVM classes and dependency JARs by default; pass `--include-jvm`
+to the build script to retain them alongside the Android runtime.
+Requirements and Android
 SDK overrides are documented in the [WAR workspace README](../README.md#build).
 No Node.js/frontend build is needed for this port. The separate, private
 WAR Runner app downloads published WARs at runtime; its APK contains no WARs.
