@@ -2,6 +2,7 @@
 set -euo pipefail
 
 project_dir="$(cd "$(dirname "$0")/.." && pwd)"
+source "$project_dir/scripts/war_build_options.sh"
 sdk_dir="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
 if [[ -z "$sdk_dir" && -f "$project_dir/../warrunner/android/local.properties" ]]; then
   sdk_dir="$(sed -n 's/^sdk.dir=//p' "$project_dir/../warrunner/android/local.properties")"
@@ -25,16 +26,18 @@ mkdir -p "$target_dir/dex" "$project_dir/war_repository"
   --classpath "$target_dir/d8-classpath/jakarta.servlet-api-5.0.0.jar" \
   --output "$target_dir/dex" "$target_dir/servlet-classes.jar"
 
-# Keep a standard JVM WAR as well as Android DEX, with stable ZIP timestamps.
-python3 - "$target_dir/hello.war" "$target_dir/dex/classes.dex" "$project_dir/war_repository/hello.war" <<'PY'
+# Package Android DEX with stable ZIP timestamps; retain JVM classes on request.
+python3 - "$target_dir/hello.war" "$target_dir/dex/classes.dex" "$project_dir/war_repository/hello.war" "$include_jvm" <<'PY'
 import pathlib
 import sys
 import zipfile
 
-source, dex, destination = map(pathlib.Path, sys.argv[1:])
+source, dex, destination = map(pathlib.Path, sys.argv[1:4])
+include_jvm = sys.argv[4] == 'true'
 temporary = destination.with_suffix('.war.tmp')
 with zipfile.ZipFile(source) as original, zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED) as output:
-    entries = {entry.filename: original.read(entry) for entry in original.infolist()}
+    entries = {entry.filename: original.read(entry) for entry in original.infolist()
+               if not entry.is_dir() and (include_jvm or not entry.filename.endswith('.class'))}
     entries['classes.dex'] = dex.read_bytes()
     for name, content in sorted(entries.items()):
         entry = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))

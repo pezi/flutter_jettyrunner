@@ -173,7 +173,9 @@ and tests; silently dropping configuration is not a conversion strategy.
 ### 5. Produce JVM and Android artifacts separately
 
 The Maven output at `<module>/target/<name>.war` retains JVM classes and library
-JARs. The generated `war_repository/<name>.war` adds Android DEX and resources.
+JARs. The generated `war_repository/<name>.war` contains Android DEX and resources
+and omits JVM bytecode by default. All five build scripts accept `--include-jvm`
+to retain the original JVM contents alongside DEX at that same output path.
 Publish it with the catalog; Flutter APKs contain no WARs and do not run Maven or D8.
 Both artifacts contain the adapted application; the official demo is not the original Spring
 Boot executable JAR. Retaining a conventional WAR layout does not replace
@@ -199,6 +201,10 @@ For a dependency/resource-heavy app, use `package_android_war.py`. It:
 - Packages **all** `classes*.dex` files plus classpath resources in
   `WEB-INF/android/runtime.jar`. A particular build having one DEX file is not
   a reason to remove multidex support.
+- By default, removes the original `WEB-INF/classes/` and `WEB-INF/lib/` trees
+  after merging their required resources into the runtime JAR. JVM `.class`
+  files are not needed by WAR Runner. Web-root assets and `WEB-INF/web.xml`
+  retain their paths. `--include-jvm` preserves the original WAR entries instead.
 - Writes sorted ZIP entries with fixed timestamps and replaces the destination
   after successful conversion. This improves reproducibility; exact bytes also
   depend on the JDK, Maven dependencies, D8 and other build tools.
@@ -211,6 +217,7 @@ build supplies ASM 9.9 as a **build tool**, not an app runtime dependency.
 The small Hello servlet instead puts a single `classes.dex` at the WAR root and
 uses `InMemoryDexClassLoader`. That shortcut does not supply a merged dependency
 or resource classpath. Use the full runtime-JAR path for a complex application.
+Its build script likewise omits `.class` files unless `--include-jvm` is passed.
 
 ### 6. Preserve resource paths and Android loading requirements
 
@@ -444,6 +451,42 @@ With the Flutter toolchain used here, Android `flutter test --release` and
 exercise it. If a temporary Dart entry point auto-starts a demo for a smoke test,
 remove it and rebuild with **`-t lib/main.dart`** before delivering the normal
 APK. Do not accidentally deliver the auto-start test build.
+
+### DEX-only distribution validation, 2026-09-25
+
+- Rebuilt all five Android distribution WARs with the default DEX-only mode
+  and regenerated catalog sizes and SHA-256 checksums. No JVM `.class` files
+  remain in the distributions or their nested runtime JARs. DEX, descriptors,
+  classpath resources, service providers and notices were checked.
+- Built Hello World and the Official Demo with `--include-jvm` too: every
+  original JVM WAR file was preserved. The Official Demo's runtime JAR was
+  byte-identical in the full and DEX-only distributions. All 28 standalone
+  Python tests passed, including packaging/resource and failure-atomicity checks.
+- Tested the exact local distribution files in the existing WAR Runner debug
+  app on `emulator-5554`, Android 17 / API 37 ARM64. ADB and the attached Flutter
+  debugger invoked the normal app start/stop channel; no catalog publication or
+  Web Admin password change was needed. Each WAR passed two start/stop cycles.
+- HTTP and Flow RPC checks covered Hello World, frontend JavaScript, Aura/Lumo
+  CSS, protected paths, two button clicks per cycle, all six Official Demo
+  routes (including the dashboard alias), source-viewer resources, Bookstore
+  invalid/admin/user logins and Inventory/new/Admin/About, and Address Book's
+  H2 database with five seeded contacts.
+- Chrome checks additionally verified Address Book rendering and saving a new
+  contact, plus Bookstore login, populated inventory and the new-product form.
+  The Button demo responded to a browser click, and the Official Demo rendered
+  its dashboard and syntax-highlighted source viewer. These checks used the
+  same emulator through ADB port forwarding.
+
+| Distribution | Previous bytes | DEX-only bytes | Reduction |
+| --- | ---: | ---: | ---: |
+| Hello World | 3,933 | 2,581 | 34.4% |
+| Vaadin button | 22,925,104 | 9,493,568 | 58.6% |
+| Official Vaadin demo | 27,327,501 | 10,613,168 | 61.2% |
+| Vaadin Bookstore | 15,645,332 | 4,769,267 | 69.5% |
+| Vaadin Address Book | 27,359,822 | 10,907,611 | 60.1% |
+
+This run validates the installed debug app on API 37. It does not repeat the
+historical minimum-API or release-APK checks below.
 
 ### Recorded validation, 2026-09-17
 

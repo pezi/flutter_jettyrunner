@@ -6,40 +6,40 @@
       "name": "Hello World Servlet",
       "fileName": "hello.war",
       "description": "A plain-text servlet that returns “Hello World!”.",
-      "sizeBytes": 3933,
-      "sha256": "3835662c7bf481b52bce4f770bd8398130ed4474be0270619fa8ccc3e2dc7276"
+      "sizeBytes": 2581,
+      "sha256": "497f217844d3839dde77eb7957fcf0a43dfec5f204b8d6e6100d7d858009ff55"
     },
     {
       "id": "vaadin",
-      "name": "Vaadin button Demo",
+      "name": "Vaadin Button Demo",
       "fileName": "vaadin-demo.war",
       "description": "Open the address in a browser, press the button, and see “Button pressed”.",
-      "sizeBytes": 22925104,
-      "sha256": "10fa3336f9f1dbc1d412dfa1c30ef8da0d1fed25a88e17f43d6c6f09d90f4615"
+      "sizeBytes": 9493568,
+      "sha256": "b136e7aee8ee7b3092202ca61487255ed4339a7008f7710ab0bdf29bc74e2224"
     },
     {
       "id": "vaadin-official",
       "name": "Official Vaadin Demo",
       "fileName": "vaadin-official-demo.war",
       "description": "Explore Dashboard, Components, Products, Users, and Settings in your browser.",
-      "sizeBytes": 27327501,
-      "sha256": "788cf98bf81c77528c5aea88c0345daace81be097f847efda6f3df7e11a3487b"
+      "sizeBytes": 10613168,
+      "sha256": "c89b74890f2f282ae80569d5508b45405d492ad7c03f36a932bef4aff50574b7"
     },
     {
       "id": "vaadin-bookstore",
       "name": "Vaadin Bookstore Demo",
       "fileName": "vaadin-bookstore-demo.war",
       "description": "Manage books and categories. Log in with admin / admin to edit, or user / user to browse.",
-      "sizeBytes": 15645332,
-      "sha256": "70cc706733ffbf190b328243d7dc6a7b60cfe46b068a6e745c6d92ac60ea9bc4"
+      "sizeBytes": 4769267,
+      "sha256": "59fdfebd25d8e10d4a35b382b9aa0ff8e9c7ee9a41fc817ef0dbcccc13f70f0b"
     },
     {
       "id": "vaadin-addressbook",
       "name": "Vaadin Address Book Demo",
       "fileName": "vaadin-addressbook-demo.war",
       "description": "Search, add, edit and delete contacts kept in an in-memory H2 database on the phone. Starts with five people.",
-      "sizeBytes": 27359822,
-      "sha256": "fe14fadea3fd8ac2b91dce124407e68d99616b9d979bb664215d92fd907d03b6"
+      "sizeBytes": 10907611,
+      "sha256": "7b15741ec5baa96a09d9b2391f0a6151c19a4921d405f8f9aa5bc56fdc82cfa0"
     }
   ]
 }
